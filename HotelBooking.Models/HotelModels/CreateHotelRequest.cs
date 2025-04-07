@@ -1,8 +1,7 @@
-﻿namespace HotelBooking.Domain.Entities
+﻿namespace HotelBooking.Models.HotelModels
 {
-    public class Hotel : BaseEntity
+    public class CreateHotelRequest
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
@@ -15,9 +14,5 @@
         public string CheckInTime { get; set; } = string.Empty;
         public string CheckOutTime { get; set; } = string.Empty;
         public bool IsActive { get; set; }
-
-
-        public ICollection<Room> Rooms { get; set; } = new List<Room>();
-        public ICollection<Image> Images { get; set; } = new List<Image>();
     }
 }

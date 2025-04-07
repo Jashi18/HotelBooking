@@ -13,7 +13,7 @@
 
         public Hotel? Hotel { get; set; }
         public RoomType? RoomType { get; set; }
-        public ICollection<Image> Images { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
+        public ICollection<Image> Images { get; set; } = new List<Image>();
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
