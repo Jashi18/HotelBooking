@@ -17,7 +17,7 @@ namespace HotelBooking.Application.Implementations
             _context = dbContext;
         }
 
-        #region Room CRUD Operations
+        #region Room Operations
 
         public async Task<List<RoomResponse>> GetAllRooms()
         {
@@ -25,7 +25,7 @@ namespace HotelBooking.Application.Implementations
                 .Include(r => r.Hotel)
                 .Include(r => r.RoomType)
                 .Include(r => r.Images)
-                .Where(r => r.DeleteDate == null)
+                .Where(r => r.DeleteDate == null && r.Hotel.DeleteDate == null)
                 .ToListAsync();
 
             return rooms.Select(r => new RoomResponse
@@ -320,7 +320,7 @@ namespace HotelBooking.Application.Implementations
 
         #endregion
 
-        #region RoomType CRUD Operations
+        #region RoomType Operations
 
         public async Task<List<RoomTypeResponse>> GetAllRoomTypes()
         {

@@ -1,12 +1,16 @@
 ﻿using HotelBooking.Domain.Enums;
 
-namespace HotelBooking.Domain.Entities
+namespace HotelBooking.Models.BookingModels
 {
-    public class Booking : BaseEntity
+    public class BookingResponse
     {
         public int Id { get; set; }
-        public int? RoomId { get; set; }
-        public Guid BookingNumber { get; set; } = Guid.NewGuid();
+        public Guid BookingNumber { get; set; }
+        public int RoomId { get; set; }
+        public string RoomName { get; set; } = string.Empty;
+        public string RoomNumber { get; set; } = string.Empty;
+        public int HotelId { get; set; }
+        public string HotelName { get; set; } = string.Empty;
         public string GuestName { get; set; } = string.Empty;
         public string GuestEmail { get; set; } = string.Empty;
         public string GuestPhone { get; set; } = string.Empty;
@@ -16,7 +20,6 @@ namespace HotelBooking.Domain.Entities
         public decimal TotalPrice { get; set; }
         public string SpecialRequests { get; set; } = string.Empty;
         public BookingStatus Status { get; set; }
-
-        public Room? Room { get; set; }
+        public string StatusDescription => Status.ToString();
     }
 }
