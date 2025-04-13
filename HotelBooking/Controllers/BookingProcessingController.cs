@@ -45,5 +45,26 @@ namespace HotelBooking.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("fill-personal-information")]
+        public async Task<IActionResult> FillPersonalInformation(FillPersonalInformationRequest request)
+        {
+            try
+            {
+                var response = await _bookingProcessingService.FillPersonalInformation(request);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+        }
     }
 }

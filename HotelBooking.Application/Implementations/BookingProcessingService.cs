@@ -186,6 +186,88 @@ namespace HotelBooking.Application.Implementations
             .OrderBy(r => r.TotalPrice)
             .ToList();
         }
+        public async Task<FillPersonalInformationResponse> FillPersonalInformation(FillPersonalInformationRequest request)
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Room)
+                .ThenInclude(r => r.Hotel)
+                .FirstOrDefaultAsync(b => b.BookingNumber == request.BookingNumber &&
+                                        b.Status == BookingStatus.Draft &&
+                                        b.DeleteDate == null);
+
+            if (booking == null)
+                throw new KeyNotFoundException($"Draft booking with number {request.BookingNumber} not found");
+
+            var room = await _context.Rooms
+                .Include(r => r.Hotel)
+                .FirstOrDefaultAsync(r => r.Id == request.RoomId &&
+                                        r.DeleteDate == null &&
+                                        r.IsActive);
+
+            if (room == null)
+                throw new KeyNotFoundException($"Room with ID {request.RoomId} not found or is not active");
+
+            if (string.IsNullOrWhiteSpace(request.GuestName))
+                throw new ArgumentException("Guest name is required");
+
+            if (string.IsNullOrWhiteSpace(request.GuestEmail))
+                throw new ArgumentException("Guest email is required");
+
+            if (string.IsNullOrWhiteSpace(request.GuestPhone))
+                throw new ArgumentException("Guest phone is required");
+
+            var isRoomAvailable = !await _context.Bookings
+                .AnyAsync(b => b.RoomId == request.RoomId &&
+                            b.Id != booking.Id &&
+                            b.DeleteDate == null &&
+                            b.Status != BookingStatus.Cancelled &&
+                            b.Status != BookingStatus.Draft &&
+                            (
+                                (booking.CheckInDate >= b.CheckInDate && booking.CheckInDate < b.CheckOutDate) ||
+                                (booking.CheckOutDate > b.CheckInDate && booking.CheckOutDate <= b.CheckOutDate) ||
+                                (booking.CheckInDate <= b.CheckInDate && booking.CheckOutDate >= b.CheckOutDate)
+                            ));
+
+            if (!isRoomAvailable)
+                throw new InvalidOperationException("The selected room is no longer available for the requested dates");
+
+            var nights = (booking.CheckOutDate - booking.CheckInDate).Days;
+
+            var siteFee = nights * room.BasePrice * 0.05m;
+
+            var totalPrice = (room.BasePrice * nights) + siteFee;
+
+            booking.RoomId = request.RoomId;
+            booking.GuestName = request.GuestName;
+            booking.GuestEmail = request.GuestEmail;
+            booking.GuestPhone = request.GuestPhone;
+            booking.SpecialRequests = request.SpecialRequests;
+            booking.TotalPrice = totalPrice;
+            booking.Status = BookingStatus.Pending;
+            booking.UpdateDate = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new FillPersonalInformationResponse
+            {
+                BookingNumber = booking.BookingNumber,
+                BookingId = booking.Id,
+                GuestName = booking.GuestName,
+                GuestEmail = booking.GuestEmail,
+                GuestPhone = booking.GuestPhone,
+                SpecialRequests = booking.SpecialRequests,
+                RoomId = room.Id,
+                RoomName = room.Name,
+                RoomNumber = room.RoomNumber,
+                HotelId = room.HotelId,
+                HotelName = room.Hotel?.Name ?? string.Empty,
+                CheckInDate = booking.CheckInDate,
+                CheckOutDate = booking.CheckOutDate,
+                NumberOfGuests = booking.NumberOfGuests,
+                TotalPrice = booking.TotalPrice,
+                Status = booking.Status
+            };
+        }
 
         private async Task<Guid> GenerateDraftBooking(HotelSearchRequest request)
         {

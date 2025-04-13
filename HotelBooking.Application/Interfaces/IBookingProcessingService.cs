@@ -6,6 +6,6 @@ namespace HotelBooking.Application.Interfaces
     {
         Task<List<HotelSearchResponse>> SearchHotels(HotelSearchRequest request);
         Task<List<RoomAvailabilityResponse>> GetAvailableRooms(RoomAvailabilityRequest request);
-
+        Task<FillPersonalInformationResponse> FillPersonalInformation(FillPersonalInformationRequest request);
     }
 }
