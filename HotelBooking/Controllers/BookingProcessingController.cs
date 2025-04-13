@@ -28,5 +28,23 @@ namespace HotelBooking.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("available-rooms")]
+        public async Task<IActionResult> GetAvailableRooms(RoomAvailabilityRequest request)
+        {
+            try
+            {
+                var availableRooms = await _bookingProcessingService.GetAvailableRooms(request);
+                return Ok(availableRooms);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
