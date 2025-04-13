@@ -28,7 +28,6 @@ namespace HotelBooking.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpPost("available-rooms")]
         public async Task<IActionResult> GetAvailableRooms(RoomAvailabilityRequest request)
         {

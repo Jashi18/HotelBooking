@@ -18,7 +18,6 @@ namespace HotelBooking.Application.Implementations
         }
 
         #region Room Operations
-
         public async Task<List<RoomResponse>> GetAllRooms()
         {
             var rooms = await _context.Rooms
@@ -317,11 +316,9 @@ namespace HotelBooking.Application.Implementations
 
             return true;
         }
-
         #endregion
 
         #region RoomType Operations
-
         public async Task<List<RoomTypeResponse>> GetAllRoomTypes()
         {
             var roomTypes = await _context.RoomTypes
@@ -432,7 +429,6 @@ namespace HotelBooking.Application.Implementations
 
             return true;
         }
-
         #endregion
     }
 }

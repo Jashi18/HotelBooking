@@ -37,7 +37,6 @@ namespace HotelBooking.Application.Implementations
 
             return MapBookingResponses(bookings);
         }
-
         public async Task<List<BookingResponse>> GetBookingsByRoomId(int roomId)
         {
             var bookings = await _context.Bookings
@@ -49,7 +48,6 @@ namespace HotelBooking.Application.Implementations
 
             return MapBookingResponses(bookings);
         }
-
         public async Task<List<BookingResponse>> GetBookingsByStatus(BookingStatus status)
         {
             var bookings = await _context.Bookings
@@ -61,7 +59,6 @@ namespace HotelBooking.Application.Implementations
 
             return MapBookingResponses(bookings);
         }
-
         public async Task<List<BookingResponse>> GetBookingsByGuestEmail(string email)
         {
             var bookings = await _context.Bookings
@@ -73,7 +70,6 @@ namespace HotelBooking.Application.Implementations
 
             return MapBookingResponses(bookings);
         }
-
         public async Task<BookingResponse> GetBookingById(int id)
         {
             var booking = await _context.Bookings
@@ -86,7 +82,6 @@ namespace HotelBooking.Application.Implementations
 
             return MapBookingResponse(booking);
         }
-
 
         private BookingResponse MapBookingResponse(Booking booking)
         {
@@ -110,7 +105,6 @@ namespace HotelBooking.Application.Implementations
                 Status = booking.Status
             };
         }
-
         private List<BookingResponse> MapBookingResponses(List<Booking> bookings)
         {
             return bookings.Select(b => MapBookingResponse(b)).ToList();

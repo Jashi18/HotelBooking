@@ -186,6 +186,7 @@ namespace HotelBooking.Application.Implementations
             .OrderBy(r => r.TotalPrice)
             .ToList();
         }
+
         private async Task<Guid> GenerateDraftBooking(HotelSearchRequest request)
         {
             var draftBooking = new Booking
