@@ -1,11 +1,13 @@
 ﻿using HotelBooking.Application.Interfaces;
 using HotelBooking.Models.BookingModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelBooking.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BookingProcessingController : ControllerBase
     {
         private readonly IBookingProcessingService _bookingProcessingService;
