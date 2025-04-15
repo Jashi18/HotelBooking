@@ -8,5 +8,6 @@ namespace HotelBooking.Application.Interfaces
         Task<AuthResponse> Register(RegisterRequest request);
         Task<bool> IsEmailUnique(string email);
         Task<bool> IsUsernameUnique(string username);
+        Task<AuthResponse> CreateHotelAdministrator(RegisterRequest request);
     }
 }

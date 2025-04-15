@@ -53,7 +53,6 @@ namespace HotelBooking.Application.Implementations
                 };
             }
 
-            // Generate token
             var token = GenerateJwtToken(user);
 
             return new AuthResponse
@@ -61,13 +60,13 @@ namespace HotelBooking.Application.Implementations
                 Success = true,
                 Message = "Authentication successful",
                 Token = token,
+                UserId = user.Id,
                 Expiration = DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
                 Username = user.Username,
                 Email = user.Email,
                 Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList()
             };
         }
-
         public async Task<AuthResponse> Register(RegisterRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower() && u.DeleteDate == null))
@@ -140,15 +139,61 @@ namespace HotelBooking.Application.Implementations
                 Roles = new List<string> { "Guest" }
             };
         }
-
         public async Task<bool> IsEmailUnique(string email)
         {
             return !await _context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower() && u.DeleteDate == null);
         }
-
         public async Task<bool> IsUsernameUnique(string username)
         {
             return !await _context.Users.AnyAsync(u => u.Username.ToLower() == username.ToLower() && u.DeleteDate == null);
+        }
+        public async Task<AuthResponse> CreateHotelAdministrator(RegisterRequest request)
+        {
+            var result = await Register(request);
+
+            if (result.Success)
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+
+                if (user != null)
+                {
+                    var hotelAdminRole = await _context.Roles
+                        .FirstOrDefaultAsync(r => r.Name == "HotelAdministrator" && r.DeleteDate == null);
+
+                    if (hotelAdminRole == null)
+                    {
+                        hotelAdminRole = new Role
+                        {
+                            Name = "HotelAdministrator",
+                            CreateDate = DateTime.UtcNow
+                        };
+                        _context.Roles.Add(hotelAdminRole);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var userRole = new UserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = hotelAdminRole.Id
+                    };
+
+                    _context.UserRoles.Add(userRole);
+                    await _context.SaveChangesAsync();
+
+                    result.Token = GenerateJwtToken(user);
+
+                    var userRoles = await _context.UserRoles
+                        .Where(ur => ur.UserId == user.Id)
+                        .Include(ur => ur.Role)
+                        .Select(ur => ur.Role.Name)
+                        .ToListAsync();
+
+                    result.Roles = userRoles;
+                }
+            }
+
+            return result;
         }
 
         private string GenerateJwtToken(User user)
@@ -164,7 +209,6 @@ namespace HotelBooking.Application.Implementations
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            // Add role claims
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
